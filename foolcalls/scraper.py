@@ -6,8 +6,7 @@ import config
 import json
 import boto3
 import re
-from utils import helpers
-import extractors
+from foolcalls.utils import helpers, extractors
 from io import BytesIO
 import gzip
 import shutil

@@ -2,7 +2,7 @@ import re
 from dateutil import parser
 from lxml import html
 import logging
-from utils.decorators import handle_one_element, handle_many_elements
+from foolcalls.utils import decorators
 
 log = logging.getLogger(__name__)
 
@@ -10,12 +10,12 @@ log = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 # SELECTORS: FIND CONTAINERS FOR THE VARIOUS ITEMS WE WILL EXTRACT
 # ---------------------------------------------------------------------------
-@handle_one_element(error_on_empty=True)
+@decorators.handle_one_element(error_on_empty=True)
 def find(parent_element, xpath_str):
     return parent_element.xpath(xpath_str)
 
 
-@handle_many_elements(error_on_empty=True)
+@decorators.handle_many_elements(error_on_empty=True)
 def findall(parent_element, xpath_str):
     return parent_element.xpath(xpath_str)
 

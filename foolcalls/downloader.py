@@ -5,16 +5,15 @@ import logging
 import config
 import boto3
 from lxml import html
-from utils.decorators import handle_one_element, handle_many_elements
-import requestors
-from utils import helpers
+from foolcalls import scraper
+from foolcalls.utils import helpers, requestors, decorators
 from io import BytesIO
 import gzip
 import shutil
 import re
 
 if config.FoolCalls.SCRAPE_DURING_DOWNLOAD:
-    import scraper
+    pass
 
 log = logging.getLogger(__name__)
 
@@ -89,14 +88,14 @@ def scrape_transcript_urls_from_single_page(page_num):
 # SELECTORS/EXTRACTORS
 # ---------------------------------------------------------------------------
 # one selector: find the container that holds the links
-@handle_one_element(error_on_empty=True)
+@decorators.handle_one_element(error_on_empty=True)
 def find_link_container(html_selector):
     links_container = html_selector.xpath('.//div[@class = "content-block listed-articles recent-articles m-np"]')
     return links_container
 
 
 # one extractor: extract the links sitting in links-container
-@handle_many_elements(error_on_empty=False)
+@decorators.handle_many_elements(error_on_empty=False)
 def extract_call_urls(links_container):
     call_urls = links_container.xpath('.//div[@class="list-content"]/a/@href')
     return call_urls
