@@ -6,7 +6,7 @@ load_dotenv()
 
 class FoolCalls:
 
-    SCRAPE_DURING_DOWNLOAD = True
+    SCRAPE_DURING_DOWNLOAD = False
     SCRAPER_VERSION = '202006.1'
 
     # fixed ishares.com values, the rest is derived/scraped
@@ -15,19 +15,22 @@ class FoolCalls:
     EARNINGS_TRANSCRIPTS_ROOT = f'{ROOT}/earnings/call-transcripts'
 
     # LINK COLLECTION PARAMETERS
-    START_PAGE = 1 # useful for debugging
-    TRAVERSE_ALL_PAGES_FOR_NEW_URLS = False # only relevant if overwrite=False
-    # if False, the process collects links until it arrives at a page with no unprocessed links
-    #   ... this is good on-going production
-    # if True, the process collects links from *all* pages
-    #   ... this is good for historic backfills and reprocessing errors on random pages.
+    START_PAGE = 1 # useful for debugging specific page
+    TRAVERSE_ALL_PAGES_FOR_NEW_URLS = False
+    # TRAVERSE_ALL_PAGES_FOR_NEW_URLS is only relevant if overwrite=False
+    #   if True: the process looks for new links inside *all* (1000+) pages
+    #   if False: the process looks for unprocessed links until it arrives at a page with no unprocessed links
 
     # throttle requests to fool.com
     MIN_SLEEP_BETWEEN_REQUESTS = 2
     MAX_SLEEP_BETWEEN_REQUESTS = 8
-    MAX_N_TRANSCRIPT_DOWNLOADS = None
+    MAX_N_TRANSCRIPT_DOWNLOADS = None # useful for a quick test
 
+class Aws:
     # aws config
+    AWS_KEY = os.environ.get('AWS_KEY')
+    AWS_SECRET = os.environ.get('AWS_SECRET')
+
     S3_REGION_NAME = 'us-west-2'
     S3_FOOLCALLS_BUCKET = 'fool-calls'
     S3_OBJECT_ROOT = 'https://s3.console.aws.amazon.com/s3/object'
@@ -38,10 +41,7 @@ class FoolCalls:
     ATHENA_SLEEP_BETWEEN_REQUESTS = 3
     ATHENA_QUERY_TIMEOUT = 200
 
-
-class Access():
-    AWS_KEY = os.environ.get('AWS_KEY')
-    AWS_SECRET = os.environ.get('AWS_SECRET')
+class AlphaVantage():
     AV_KEY = os.environ.get('AV_KEY')
 
 

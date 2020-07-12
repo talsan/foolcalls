@@ -1,15 +1,15 @@
 import boto3
-import config
+from config import Aws, FoolCalls
 import logging
 import re
 
 log = logging.getLogger(__name__)
 
 # GLOBAL DATA (AWS CLIENT)
-aws_session = boto3.Session(aws_access_key_id=config.Access.AWS_KEY,
-                            aws_secret_access_key=config.Access.AWS_SECRET)
+aws_session = boto3.Session(aws_access_key_id=Aws.AWS_KEY,
+                            aws_secret_access_key=Aws.AWS_SECRET)
 
-s3_client = aws_session.client('s3', region_name=config.FoolCalls.S3_REGION_NAME)
+s3_client = aws_session.client('s3', region_name=Aws.S3_REGION_NAME)
 
 
 def list_keys(Bucket, Prefix='', Suffix='', full_path=True, remove_ext=False):
