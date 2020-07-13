@@ -5,12 +5,10 @@ import logging
 from config import Aws, FoolCalls
 import json
 import boto3
-import re
 from foolcalls.utils import helpers, extractors
 from io import BytesIO
 import gzip
 import shutil
-import glob
 
 log = logging.getLogger(__name__)
 
@@ -18,9 +16,6 @@ aws_session = boto3.Session(aws_access_key_id=Aws.AWS_KEY,
                             aws_secret_access_key=Aws.AWS_SECRET)
 
 
-# ---------------------------------------------------------------------------
-# SCRAPER
-# ---------------------------------------------------------------------------
 def process_transcript(cid: str, html_content: bytes, outputpath: str) -> None:
     call_url = f'{FoolCalls.EARNINGS_TRANSCRIPTS_ROOT}/{helpers.to_url(cid)}'
     log.info(f'scraping cid: {cid}; with url: {call_url}')
@@ -67,49 +62,22 @@ def scrape_transcript(html_text: bytes) -> dict:
     return output
 
 
-def build_scraper_queue(outputpath: str, overwrite: str) -> list:
+def get_raw_transcript(outputpath, key):
     if outputpath == 's3':
-        downloaded_paths = helpers.list_keys(Bucket=Aws.S3_FOOLCALLS_BUCKET,
-                                             Prefix='state=downloaded/')
+        html_content = get_raw_transcript_from_s3(key)
     else:
-        downloaded_paths = [dp.replace(f'{outputpath.rstrip("/")}/', '')
-                            for dp in glob.glob(f'{outputpath.rstrip("/")}/state=downloaded/**/*.gz')]
-
-    scraper_queue = [{'cid': re.findall('cid=(.*).gz', dl_path)[0],
-                      'input_key': dl_path}
-                     for dl_path in downloaded_paths]
-
-    # if file has been downloaded multiple times, take latest rundate
-    for sc in scraper_queue:
-        sc.update({'rundate':re.findall('rundate=(\\d{8})', sc['input_key'])[0]})
-
-
-    if not overwrite:
-        previously_scraped_cids = helpers.list_keys(Bucket=Aws.S3_FOOLCALLS_BUCKET,
-                                                    Prefix=f'state=structured/version={FoolCalls.SCRAPER_VERSION}/cid=',
-                                                    full_path=False,
-                                                    remove_ext=True)
-
-        scraper_queue = [queue_item for queue_item in scraper_queue
-                         if queue_item['cid'] not in previously_scraped_cids]
-
-    return scraper_queue
-
-def get_raw_transcript(outputpath,input_key):
-    if outputpath == 's3':
-        html_content = get_raw_transcript_from_s3(input_key)
-    else:
-        html_content = get_raw_transcript_from_local(outputpath, input_key)
+        html_content = get_raw_transcript_from_local(outputpath, key)
 
     return html_content
 
-def get_raw_transcript_from_s3(input_key):
+
+def get_raw_transcript_from_s3(file_path):
     input_file_buffer = BytesIO()
     output_file_buffer = BytesIO()
 
     s3_client = aws_session.client('s3', region_name=Aws.S3_REGION_NAME)
     s3_client.download_fileobj(Bucket=Aws.S3_FOOLCALLS_BUCKET,
-                               Key=input_key,
+                               Key=file_path,
                                Fileobj=input_file_buffer)
 
     input_file_buffer.seek(0)
@@ -119,9 +87,9 @@ def get_raw_transcript_from_s3(input_key):
     return output_file_buffer.getvalue()
 
 
-def get_raw_transcript_from_local(outputpath, input_key):
+def get_raw_transcript_from_local(outputpath, file_path):
     output_file_buffer = BytesIO()
-    with gzip.open(f'{outputpath.rstrip("/")}/{input_key}', 'rb') as f_in:
+    with gzip.open(f'{outputpath.rstrip("/")}/{file_path}', 'rb') as f_in:
         shutil.copyfileobj(f_in, output_file_buffer)
 
     return output_file_buffer.getvalue()
@@ -156,11 +124,9 @@ def put_transcript_in_s3(key: str, output: dict) -> None:
 # ---------------------------------------------------------------------------
 # MAIN
 # ---------------------------------------------------------------------------
-def main(outputpath, overwrite):
-    scraper_queue = build_scraper_queue(outputpath, overwrite)
-    for queue_item in scraper_queue:
-        html_content = get_raw_transcript(outputpath, input_key=queue_item['input_key'])
-        process_transcript(queue_item['cid'], html_content, outputpath)
+def main(cid, outputpath, key):
+    html_content = get_raw_transcript(outputpath, key)
+    process_transcript(cid, html_content, outputpath)
 
 
 # ---------------------------------------------------------------------------
@@ -171,11 +137,13 @@ def main(outputpath, overwrite):
 # ---------------------------------------------------------------------------
 if __name__ == "__main__":
     # command line arguments
-    parser = argparse.ArgumentParser(description='scrape the contents of a call from a ')
-    parser.add_argument('outputpath', help=f'where to send output on local machine; if outputpath==\'s3\', output is '
-                                           f'uploaded to the Aws.OUPUT_BUCKET variable defined in config.py')
-    parser.add_argument('--overwrite', help=f'Overwrite holdings that have already been downloaded to S3',
-                        action='store_true')
+    parser = argparse.ArgumentParser(description='scrape the contents of a call from a raw html file')
+    parser.add_argument('cid', help='call id to scrape')
+    parser.add_argument('outputpath', help=f'parent dir that stores all outputs (like a local s3 bucket); if '
+                                           f'outputpath==\'s3\', output is uploaded to the Aws.OUPUT_BUCKET '
+                                           f'parameter defined in config.py')
+    parser.add_argument('key', help='local key or s3 key of incoming html file; '
+                                    'do not include outputpath or s3 bucket in key')
     args = parser.parse_args()
 
     # logging (will inherit log calls from utils.pricing and utils.s3_helpers)
@@ -185,5 +153,5 @@ if __name__ == "__main__":
                         format=f'%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
     # run main
-    main(args.outputpath, args.overwrite)
+    main(args.cid, args.key, args.outputpath)
     log.info(f'successfully completed script')

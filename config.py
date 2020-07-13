@@ -6,7 +6,6 @@ load_dotenv()
 
 class FoolCalls:
 
-    SCRAPE_DURING_DOWNLOAD = False
     SCRAPER_VERSION = '202006.1'
 
     # fixed ishares.com values, the rest is derived/scraped
@@ -24,7 +23,7 @@ class FoolCalls:
     # throttle requests to fool.com
     MIN_SLEEP_BETWEEN_REQUESTS = 2
     MAX_SLEEP_BETWEEN_REQUESTS = 8
-    MAX_N_TRANSCRIPT_DOWNLOADS = None # useful for a quick test
+    MAX_N_TRANSCRIPT_DOWNLOADS = 25 # useful for a quick test
 
 class Aws:
     # aws config
