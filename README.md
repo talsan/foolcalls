@@ -9,6 +9,6 @@
 #### Features & Options
 - Decoupled into functional units:
   - events: `downloader.py` and `scraper.py` are self-contained modules that handle individual events
-  - event-queues: `update_downloader.py` and `update_scraper.py` are wrappers that invoke/queue a series of events 
+  - event-queues: `update_downloader.py` and `update_scraper.py` are wrappers that invoke/queue a series of events to stay in sync with new calls on fool.com
 - Supports local or S3 file-store (see `outputpath` input parameter)
 - Polite scraping (i.e. various throttles available in `config.py`)
