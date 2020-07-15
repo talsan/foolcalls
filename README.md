@@ -1,6 +1,5 @@
 # Scrape & Structure Earnings Call Transcripts from fool.com
-
-<Example here>
+![This is what it does](https://github.com/talsan/foolcalls/blob/master/examples/scraper_example.png?raw=true)
 
 ## Usage Patterns
 - Modules for processing individual events (i.e. a single earnings call transcript):
