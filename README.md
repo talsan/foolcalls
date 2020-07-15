@@ -1,9 +1,12 @@
 # Scrape & Structure Earnings Call Transcripts from fool.com
 
-## Process Overview
-1. **Crawl Fool.com for Transcript URLs**: `scraper.py` scrape urls from the [earnings call landing page](https://www.fool.com/earnings-call-transcripts/?page=1) - a paginated list of earnings call links (most recent calls appear first)
-2. **Archive Raw HTML Contents** `downloader.py` downloads, compresses (gzip), and archives contents of each url (stored locally or in s3)
-3. **Scrape & Structure Transcripts**: `scraper.py` transforms individual raw html file into a consistently structured JSON, with detailed metadata about speakers and their individual statements (stored locally or in s3)
+Html:
+![HTML](https://github.com/talsan/foolcalls/blob/master/reference/html_preview.PNG?raw=true)
+Scraped MetaData:
+![Metadata](https://github.com/talsan/foolcalls/blob/master/reference/metdata.PNG?raw=true)
+Transcript:
+![Metadata](https://github.com/talsan/foolcalls/blob/master/reference/transcript%20contents.PNG?raw=true)
+
 
 ## Usage Patterns
 - Modules for processing individual events (i.e. a single earnings call transcript):
@@ -46,6 +49,11 @@ for page in range(0, num_of_pages):
         time.sleep(5) # sleep 5 seconds between reqeusts
 print(json.dumps(transcript, indent=2))
 ```
+
+## Batcch Process Overview
+1. **Crawl Fool.com for Transcript URLs**: `scraper.py` scrape urls from the [earnings call landing page](https://www.fool.com/earnings-call-transcripts/?page=1) - a paginated list of earnings call links (most recent calls appear first)
+2. **Archive Raw HTML Contents**: download, compresses (gzip), and archives contents of each url (stored locally or in s3)
+3. **Scrape, Structure & Store Transcripts**: transforms individual raw html file into a consistently structured JSON, with detailed metadata about speakers and their individual statements (stored locally or in s3)
 
 ## Batch Processing Examples
 invoke/queue a series of events (transcripts), keeping local/cloud directories in sync with fool.com
