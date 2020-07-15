@@ -1,14 +1,14 @@
 # Scrape & Structure Earnings Call Transcripts from fool.com
 
 ## Process Overview
-1. **Crawl Fool.com for Transcript URLs**: scrape urls from the [earnings call landing page](https://www.fool.com/earnings-call-transcripts/?page=1) - a paginated list of earnings call links (most recent calls appear first)
+1. **Crawl Fool.com for Transcript URLs**: `scraper.py` scrape urls from the [earnings call landing page](https://www.fool.com/earnings-call-transcripts/?page=1) - a paginated list of earnings call links (most recent calls appear first)
 2. **Archive Raw HTML Contents** `downloader.py` downloads, compresses (gzip), and archives contents of each url (stored locally or in s3)
 3. **Scrape & Structure Transcripts**: `scraper.py` transforms individual raw html file into a consistently structured JSON, with detailed metadata about speakers and their individual statements (stored locally or in s3)
 
-## Usage Patterns (event-level vs batch)
-- Modules for processing individual transcripts (events):
+## Usage Patterns
+- Modules for processing individual events (i.e. a single earnings call transcript):
   - `scrapers.py` exposes self-contained scraping functions that can be imported (or called via cli) to process individual events (transcripts)
-- Batch Processing for syncing many transcripts: `sync_downloads.py` and `sync_scrapes.py` are wrappers that invoke/queue a series of events (transcripts), keeping local/cloud directories in sync with fool.com
+- Batch Processes for syncing transcripts with your file-store: `sync_downloads.py` and `sync_scrapes.py` are wrappers that invoke/queue a series of events (transcripts), keeping local/cloud directories in sync with fool.com
     - Supports local or S3 file-store (see `outputpath` input parameter)
     - Supports multiprocessing (see parameter in `config.py`)
     - Polite, under-the-radar scraping (i.e. various throttles and perameters available in `config.py`)
