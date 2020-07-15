@@ -3,11 +3,11 @@ from datetime import datetime
 import argparse
 import logging
 from config import Aws, FoolCalls
-from lxml import html
-from foolcalls import downloader, scraper
-from foolcalls.utils import helpers, requestors, decorators
+from foolcalls import downloaders, scrapers
+from foolcalls.utils import helpers
 import re
 import glob
+
 
 log = logging.getLogger(__name__)
 
@@ -16,8 +16,13 @@ log = logging.getLogger(__name__)
 # BUILD A DOWNLOAD QUEUE
 # ---------------------------------------------------------------------------
 def build_download_queue(outputpath: str, overwrite: str) -> list:
-    previously_processed_call_urls = [] if overwrite else get_previously_processed_call_urls(outputpath)
-    call_urls = get_new_call_urls(previously_processed_call_urls)
+
+    if overwrite:
+        previously_processed_call_urls = []
+    else:
+        previously_processed_call_urls = get_previously_processed_call_urls(outputpath)
+
+    call_urls = get_call_urls(previously_processed_call_urls)
 
     download_queue = [helpers.to_cid(call_url) for call_url in call_urls]
 
@@ -52,16 +57,19 @@ def get_previously_processed_call_urls(outputpath: str) -> list:
 # as of 2020-07-10, there are 20 links per page.
 # so as to avoid hitting fool.com unnecessarily, the process stops if it reaches a page whose urls are already downloaded.
 # to turn this setting off, set FoolCalls.TRAVERSE_ALL_PAGES_FOR_NEW_URLS (in config.py) to True
-def get_new_call_urls(previously_processed_call_urls: list = None) -> list:
+def get_call_urls(previously_processed_call_urls: list = None) -> list:
+
     if previously_processed_call_urls is None:
         previously_processed_call_urls = []
 
     page_num = FoolCalls.START_PAGE
     new_call_urls = []
-    while len(new_call_urls) < (FoolCalls.MAX_N_TRANSCRIPT_DOWNLOADS or float('inf')):
-        this_page_urls_ext = scrape_transcript_urls_from_single_page(page_num=page_num)
-        if this_page_urls_ext is not None:
-            this_page_urls = [f'{FoolCalls.ROOT}{call_url_ext}' for call_url_ext in this_page_urls_ext]
+    while page_num <= (FoolCalls.MAX_PAGES or float('inf')):
+
+        this_page_urls = scrapers.scrape_transcript_urls_by_page(page_num=page_num)
+        helpers.sleep_between_requests()
+
+        if this_page_urls is not None:
 
             # get new urls on the page that weren't already processed
             new_urls_on_this_page = list(set(this_page_urls) - set(previously_processed_call_urls))
@@ -83,37 +91,17 @@ def get_new_call_urls(previously_processed_call_urls: list = None) -> list:
 
 
 # ---------------------------------------------------------------------------
-# SCRAPE LINKS OF OF A GIVEN PAGE
-# ---------------------------------------------------------------------------
-def scrape_transcript_urls_from_single_page(page_num):
-    response = requestors.links(page_num)
-    html_selector = html.fromstring(response.text)
-    call_urls = extract_call_urls(html_selector)
-    return call_urls
-
-
-# extract the links
-@decorators.handle_many_elements(error_on_empty=False)
-def extract_call_urls(links_container):
-    call_urls = links_container.xpath('.//div[@class = "content-block listed-articles recent-articles m-np"]'
-                                      '//div[@class="list-content"]/a/@href')
-    return call_urls
-
-
-# ---------------------------------------------------------------------------
 # MAIN
 # ---------------------------------------------------------------------------
 def main(outputpath, overwrite, scraper_callback):
     cid_download_queue = build_download_queue(outputpath, overwrite)
     for i, cid in enumerate(cid_download_queue):
+
         log.info(f'now downloading/scraping {i + 1} of {len(cid_download_queue)}')
+
         try:
-            dl = downloader.Downloader(cid, outputpath)
-
-            dl.download_raw_transcript().save_raw_transcript()
-
-            if scraper_callback:
-                scraper.process_transcript(cid=dl.cid, html_content=dl.html_content)
+            downloaders.main(cid, outputpath, scraper_callback)
+            helpers.sleep_between_requests()
 
         except Exception as e:
             log.error(f'error: {e}')

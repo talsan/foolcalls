@@ -8,16 +8,16 @@ log = logging.getLogger(__name__)
 
 
 # DECORATORS
-def sleep_between_requests(func):
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        response = func(*args, **kwargs)
-        sleep_seconds = random.randint(config.FoolCalls.MIN_SLEEP_BETWEEN_REQUESTS,
-                                       config.FoolCalls.MAX_SLEEP_BETWEEN_REQUESTS)
-        log.info(f'post request sleep for {sleep_seconds} seconds ...')
-        time.sleep(sleep_seconds)
-        return response
-    return wrapper
+# def sleep_between_requests(func):
+#     @wraps(func)
+#     def wrapper(*args, **kwargs):
+#         response = func(*args, **kwargs)
+#         sleep_seconds = random.randint(config.FoolCalls.MIN_SLEEP_BETWEEN_REQUESTS,
+#                                        config.FoolCalls.MAX_SLEEP_BETWEEN_REQUESTS)
+#         log.info(f'post request sleep for {sleep_seconds} seconds ...')
+#         time.sleep(sleep_seconds)
+#         return response
+#     return wrapper
 
 
 def handle_one_element(error_on_empty=True):

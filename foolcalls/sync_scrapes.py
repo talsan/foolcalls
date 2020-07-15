@@ -2,12 +2,13 @@ import os
 from datetime import datetime
 import argparse
 import logging
-from config import Aws, FoolCalls
+from config import Aws, FoolCalls, Local
 import boto3
 import re
 from foolcalls.utils import helpers
 import glob
-from foolcalls import scraper
+from foolcalls import scrapers
+import multiprocessing as mp
 
 log = logging.getLogger(__name__)
 
@@ -16,6 +17,7 @@ aws_session = boto3.Session(aws_access_key_id=Aws.AWS_KEY,
 
 
 def build_scraper_queue(outputpath: str, overwrite: str) -> list:
+    log.info('building scraper queue...')
     if outputpath == 's3':
         downloaded_paths = helpers.list_keys(Bucket=Aws.S3_FOOLCALLS_BUCKET,
                                              Prefix='state=downloaded/')
@@ -23,7 +25,7 @@ def build_scraper_queue(outputpath: str, overwrite: str) -> list:
         downloaded_paths = [dp.replace(f'{outputpath.rstrip("/")}/', '')
                             for dp in glob.glob(f'{outputpath.rstrip("/")}/state=downloaded/**/*.gz')]
 
-    scraper_queue_raw = [{'cid': re.findall('cid=(.*).gz', dl_path)[0],
+    scraper_queue_raw = [{'cid': re.findall('cid=(.*)\\.gz', dl_path)[0],
                           'key': dl_path}
                          for dl_path in downloaded_paths]
 
@@ -40,22 +42,35 @@ def build_scraper_queue(outputpath: str, overwrite: str) -> list:
     scraper_queue = drop_duplicates(scraper_queue_raw)
 
     if not overwrite:
-        previously_scraped_cids = helpers.list_keys(Bucket=Aws.S3_FOOLCALLS_BUCKET,
-                                                    Prefix=f'state=structured/version={FoolCalls.SCRAPER_VERSION}/cid=',
-                                                    full_path=False,
-                                                    remove_ext=True)
+        if outputpath == 's3':
+            previously_scraped_cids = helpers.list_keys(Bucket=Aws.S3_FOOLCALLS_BUCKET,
+                                                        Prefix=f'state=structured/'
+                                                               f'version={FoolCalls.SCRAPER_VERSION}/cid=',
+                                                        full_path=False,
+                                                        remove_ext=True)
+        else:
+            previously_scraped_cids = [re.findall('cid=(.*)\\.json', key)[0]
+                                       for key in glob.glob(f'{outputpath.rstrip("/")}/state=structured/'
+                                                            f'version={FoolCalls.SCRAPER_VERSION}/cid=*.json')]
 
         scraper_queue = [queue_item for queue_item in scraper_queue
                          if queue_item['cid'] not in previously_scraped_cids]
 
+    log.info(f'beginning to scrape {len(scraper_queue)} transcripts from {outputpath}')
     return scraper_queue
 
 
 def main(outputpath, overwrite):
     scraper_queue = build_scraper_queue(outputpath, overwrite)
-    for queue_item in scraper_queue:
-        html_content = scraper.get_raw_transcript(outputpath, key=queue_item['key'])
-        scraper.process_transcript(queue_item['cid'], html_content, outputpath)
+
+    if Local.MULTIPROCESS_ON:
+        mp_inputs = [(sc['cid'], outputpath, sc['key']) for sc in scraper_queue]
+        cpu_count = mp.cpu_count() if Local.MULTIPROCESS_CPUS is None else Local.MULTIPROCESS_CPUS
+        pool = mp.Pool(processes=cpu_count)
+        pool.starmap(scrapers.main, mp_inputs)
+    else:
+        for queue_item in scraper_queue:
+            scrapers.main(queue_item['cid'], outputpath, queue_item['key'])
 
 
 if __name__ == "__main__":

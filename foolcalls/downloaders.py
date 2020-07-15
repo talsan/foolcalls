@@ -4,11 +4,13 @@ import argparse
 import logging
 from config import Aws, FoolCalls
 import boto3
-from foolcalls import scraper
-from foolcalls.utils import helpers, requestors
+from foolcalls import scrapers
+from foolcalls.utils import helpers
 from io import BytesIO
 import gzip
 import shutil
+import random
+import requests
 
 
 log = logging.getLogger(__name__)
@@ -24,11 +26,16 @@ class Downloader:
         self.html_content = bytes()
         self.fool_download_ts = str()
 
-    def download_raw_transcript(self):
-        r = requestors.transcript(self.call_url)
+    def request_transcript_url(self):
+        request = dict(url=self.call_url,
+                       headers={'User-Agent': random.choice(FoolCalls.USER_AGENT_LIST)})
 
-        self.html_content = r.content
+        log.info(f'request: {request}')
+        response = requests.get(**request)
+        assert response.status_code == 200
+        self.html_content = response.content
         self.fool_download_ts = str(datetime.now())
+
         return self
 
     def save_raw_transcript(self):
@@ -78,14 +85,13 @@ class Downloader:
 # MAIN
 # ---------------------------------------------------------------------------
 def main(cid, outputpath, scraper_callback):
-    dl = Downloader(cid=cid,
-                    outputpath=outputpath)
+    dl = Downloader(cid=cid, outputpath=outputpath)
 
-    dl.download_raw_transcript(). \
+    dl.request_transcript_url(). \
         save_raw_transcript()
 
     if scraper_callback:
-        scraper.process_transcript(cid=dl.cid, html_content=dl.html_content)
+        scrapers.process_transcript(cid=dl.cid, html_content=dl.html_content, outputpath=outputpath)
 
 
 if __name__ == "__main__":

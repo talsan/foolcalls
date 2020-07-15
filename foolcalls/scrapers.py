@@ -9,6 +9,10 @@ from foolcalls.utils import helpers, extractors
 from io import BytesIO
 import gzip
 import shutil
+from lxml import html
+import multiprocessing as mp
+import requests
+import random
 
 log = logging.getLogger(__name__)
 
@@ -16,22 +20,37 @@ aws_session = boto3.Session(aws_access_key_id=Aws.AWS_KEY,
                             aws_secret_access_key=Aws.AWS_SECRET)
 
 
-def process_transcript(cid: str, html_content: bytes, outputpath: str) -> None:
-    call_url = f'{FoolCalls.EARNINGS_TRANSCRIPTS_ROOT}/{helpers.to_url(cid)}'
-    log.info(f'scraping cid: {cid}; with url: {call_url}')
+# ---------------------------------------------------------------------------
+# SCRAPE LINKS OF OF A GIVEN PAGE
+# ---------------------------------------------------------------------------
+def request_html_w_urls(page_num):
+    request = dict(url=FoolCalls.EARNINGS_LINKS_ROOT,
+                   params={'page': page_num},
+                   headers={'User-Agent': random.choice(FoolCalls.USER_AGENT_LIST)})
 
-    # scrape
-    call_transcript_data = scrape_transcript(html_content)
+    log.info(f'request: {request}')
 
-    # add source_metadata
-    output = {'cid': cid, 'call_url': call_url}
-    output.update(call_transcript_data)
-
-    # upload to s3
-    key = f'state=structured/version={FoolCalls.SCRAPER_VERSION}/cid={cid}.json'
-    save_transcript(outputpath, key, output)
+    response = requests.get(**request)
+    assert response.status_code == 200
+    return response
 
 
+def scrape_transcript_urls(html_text):
+    html_selector = html.fromstring(html_text)
+    call_urls = extractors.get_call_urls(html_selector)
+    return call_urls
+
+
+def scrape_transcript_urls_by_page(page_num):
+    response = request_html_w_urls(page_num)
+    call_urls_ext = scrape_transcript_urls(response.text)
+    call_urls = [f'{FoolCalls.ROOT}{call_url_ext}' for call_url_ext in call_urls_ext]
+    return call_urls
+
+
+# ---------------------------------------------------------------------------
+# SCRAPE TRANSCRIPT
+# ---------------------------------------------------------------------------
 def scrape_transcript(html_text: bytes) -> dict:
     # init output
     output = {}
@@ -60,6 +79,23 @@ def scrape_transcript(html_text: bytes) -> dict:
     output.update({'participants': call_participant_metadata})
     output.update({'call_transcript': call_statement_data})
     return output
+
+
+def process_transcript(cid: str, html_content: bytes, outputpath: str) -> None:
+    call_url = f'{FoolCalls.EARNINGS_TRANSCRIPTS_ROOT}/{helpers.to_url(cid)}'
+    log.info(f'pid[{mp.current_process().pid}] scraping cid: {cid}; with url: {call_url}')
+    print(f'pid[{mp.current_process().pid}] scraping cid: {cid}; with url: {call_url}')
+
+    # scrape
+    call_transcript_data = scrape_transcript(html_content)
+
+    # add source_metadata
+    output = {'cid': cid, 'call_url': call_url}
+    output.update(call_transcript_data)
+
+    # upload to s3
+    key = f'state=structured/version={FoolCalls.SCRAPER_VERSION}/cid={cid}.json'
+    save_transcript(outputpath, key, output)
 
 
 def get_raw_transcript(outputpath, key):
@@ -118,15 +154,19 @@ def put_transcript_in_s3(key: str, output: dict) -> None:
                          Body=json.dumps(output))
 
     s3_output_url = f'{Aws.S3_OBJECT_ROOT}/{Aws.S3_FOOLCALLS_BUCKET}/{key}'
-    log.info(f's3 upload success: {s3_output_url}')
+    log.info(f'pid[{mp.current_process().pid}] s3 upload success: {s3_output_url}')
+    print(f'pid[{mp.current_process().pid}] s3 upload success: {s3_output_url}')
 
 
 # ---------------------------------------------------------------------------
 # MAIN
 # ---------------------------------------------------------------------------
 def main(cid, outputpath, key):
-    html_content = get_raw_transcript(outputpath, key)
-    process_transcript(cid, html_content, outputpath)
+    try:
+        html_content = get_raw_transcript(outputpath, key)
+        process_transcript(cid, html_content, outputpath)
+    except Exception as e:
+        log.error(f'error: {e}')
 
 
 # ---------------------------------------------------------------------------

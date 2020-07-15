@@ -2,6 +2,8 @@ import boto3
 from config import Aws, FoolCalls
 import logging
 import re
+import random
+import time
 
 log = logging.getLogger(__name__)
 
@@ -42,3 +44,8 @@ def to_url(cid):
     cid_split = cid.split('-')
     return f'{"/".join(cid_split[0:3])}/{"-".join(cid_split[3:])}.aspx'
 
+def sleep_between_requests():
+    sleep_seconds = random.randint(FoolCalls.MIN_SLEEP_BETWEEN_REQUESTS,
+                                   FoolCalls.MAX_SLEEP_BETWEEN_REQUESTS)
+    log.info(f'post request sleep for {sleep_seconds} seconds ...')
+    time.sleep(sleep_seconds)

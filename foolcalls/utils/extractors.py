@@ -2,20 +2,28 @@ import re
 from dateutil import parser
 from lxml import html
 import logging
-from foolcalls.utils import decorators
+from foolcalls.utils.decorators import handle_many_elements, handle_one_element
+import multiprocessing as mp
 
 log = logging.getLogger(__name__)
+
+# extract the links
+@handle_many_elements(error_on_empty=False)
+def get_call_urls(html_selector):
+    call_urls = html_selector.xpath('.//div[@class = "content-block listed-articles recent-articles m-np"]'
+                                      '//div[@class="list-content"]/a/@href')
+    return call_urls
 
 
 # ---------------------------------------------------------------------------
 # SELECTORS: FIND CONTAINERS FOR THE VARIOUS ITEMS WE WILL EXTRACT
 # ---------------------------------------------------------------------------
-@decorators.handle_one_element(error_on_empty=True)
+@handle_one_element(error_on_empty=True)
 def find(parent_element, xpath_str):
     return parent_element.xpath(xpath_str)
 
 
-@decorators.handle_many_elements(error_on_empty=True)
+@handle_many_elements(error_on_empty=True)
 def findall(parent_element, xpath_str):
     return parent_element.xpath(xpath_str)
 
@@ -58,7 +66,8 @@ def find_containers(html_text):
                 'qa': qa_elements,
                 'duration': duration_element}
 
-    log.info(f'successfully identified all {len(elements.keys())} selectors/containers')
+    log.info(f'pid[{mp.current_process().pid}] successfully identified all {len(elements.keys())} selectors/containers')
+    print(f'pid[{mp.current_process().pid}] successfully identified all {len(elements.keys())} selectors/containers')
     return elements
 
 
@@ -69,13 +78,23 @@ def get_publication_metadata(publisher_metadata):
     # author
     publication_author = ' '.join(publisher_metadata.xpath('.//div[@class="author-name"]//text()'))
 
-    # publication time
+    # publication time(s)
+    # if there was no update, there's just a date (eg 'Jan 27, 2020 at 11:00PM')
+    # if there was an update, it looks like this: 'Updated: Feb 5, 2020 at 2:30PM Published: Jan 27, 2020 at 11:00PM'
     pub_time_raw = ' '.join(publisher_metadata.xpath('.//div[@class="publication-date"]//text()'))
     pub_time_cln = re.sub('\s+', ' ', pub_time_raw).strip()
-    pub_time = str(parser.parse(pub_time_cln))
+
+    pub_time_updated = ''.join(re.findall('^Updated: (.*) Published:', pub_time_cln))
+    if len(pub_time_updated) > 0:
+        pub_time_published = ''.join(re.findall('Published: (.*)$', pub_time_cln))
+
+    else:
+        pub_time_published = pub_time_cln
+        pub_time_updated = pub_time_published
 
     metadata = {'publication_author': re.sub('\s+', ' ', publication_author).strip(),
-                'publication_time': pub_time}
+                'publication_time_published': str(parser.parse(pub_time_published)),
+                'publication_time_updated': str(parser.parse(pub_time_updated))}
     return metadata
 
 
@@ -147,7 +166,8 @@ def get_header_metadata(header_element):
                 'call_date': call_date,
                 'call_time': call_time}
 
-    log.info(f'successfully extracted call-level metadata from transcript')
+    log.info(f'pid[{mp.current_process().pid}] successfully extracted call-level metadata from transcript')
+    print(f'pid[{mp.current_process().pid}] successfully extracted call-level metadata from transcript')
     return metadata
 
 
@@ -187,7 +207,10 @@ def get_statement_data(pres_elements, qa_elements):
 
     output = pres_statements + qa_statements
 
-    log.info(f'successfully extracted all statements (and statement-level metadata) from the transcript')
+    log.info(
+        f'pid[{mp.current_process().pid}] successfully extracted all statements (and statement-level metadata) from the transcript')
+    print(
+        f'pid[{mp.current_process().pid}] successfully extracted all statements (and statement-level metadata) from the transcript')
     return output
 
 
