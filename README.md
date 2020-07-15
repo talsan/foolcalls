@@ -1,12 +1,6 @@
 # Scrape & Structure Earnings Call Transcripts from fool.com
 
-Html:
-![HTML](https://github.com/talsan/foolcalls/blob/master/reference/html_preview.PNG?raw=true)
-Scraped MetaData:
-![Metadata](https://github.com/talsan/foolcalls/blob/master/reference/metdata.PNG?raw=true)
-Transcript:
-![Metadata](https://github.com/talsan/foolcalls/blob/master/reference/transcript%20contents.PNG?raw=true)
-
+<Example here>
 
 ## Usage Patterns
 - Modules for processing individual events (i.e. a single earnings call transcript):
