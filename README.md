@@ -2,9 +2,9 @@
 ![This is what it does](https://github.com/talsan/foolcalls/blob/master/examples/scraper_example.png?raw=true)
 
 ## Usage Patterns
-#### Modules for processing individual events (i.e. a single earnings call transcript):
-- `scrapers.py` exposes self-contained scraping functions that can be imported (or called via cli) to process individual events (transcripts)
-#### Batch Processes for syncing transcripts with your file-store:
+#### Modules for converting transcript from raw html to json
+- `scrapers.py` provides functions that scrape and structure individual transcripts
+#### Batch Processes for syncing transcripts with your local or s3 filestores:
 - `sync_downloads.py` and `sync_scrapes.py` are wrappers that invoke/queue a series of events (transcripts), keeping local/cloud directories in sync with fool.com
 - Supports local or S3 file-store (see `outputpath` input parameter)
 - Supports multiprocessing (see parameter in `config.py`)
@@ -44,7 +44,7 @@ for page in range(0, num_of_pages):
 print(json.dumps(transcript, indent=2))
 ```
 
-## Batcch Process Overview
+## Batch Process Overview
 1. **Crawl Fool.com for Transcript URLs**: `scraper.py` scrape urls from the [earnings call landing page](https://www.fool.com/earnings-call-transcripts/?page=1) - a paginated list of earnings call links (most recent calls appear first)
 2. **Archive Raw HTML Contents**: download, compresses (gzip), and archives contents of each url (stored locally or in s3)
 3. **Scrape, Structure & Store Transcripts**: transforms individual raw html file into a consistently structured JSON, with detailed metadata about speakers and their individual statements (stored locally or in s3)
