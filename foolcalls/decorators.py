@@ -1,8 +1,5 @@
 import logging
 from functools import wraps
-import time
-import random
-import config
 
 log = logging.getLogger(__name__)
 

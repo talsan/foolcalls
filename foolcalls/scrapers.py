@@ -2,10 +2,10 @@ import os
 from datetime import datetime
 import argparse
 import logging
-from config import Aws, FoolCalls
+from foolcalls.config import Aws, FoolCalls
 import json
 import boto3
-from foolcalls.utils import helpers, extractors
+from foolcalls import helpers, extractors
 from io import BytesIO
 import gzip
 import shutil

@@ -1,5 +1,5 @@
 import boto3
-from config import Aws, FoolCalls
+from foolcalls.config import Aws, FoolCalls
 import logging
 import re
 import random

@@ -2,16 +2,17 @@ import re
 from dateutil import parser
 from lxml import html
 import logging
-from foolcalls.utils.decorators import handle_many_elements, handle_one_element
+from foolcalls.decorators import handle_many_elements, handle_one_element
 import multiprocessing as mp
 
 log = logging.getLogger(__name__)
+
 
 # extract the links
 @handle_many_elements(error_on_empty=False)
 def get_call_urls(html_selector):
     call_urls = html_selector.xpath('.//div[@class = "content-block listed-articles recent-articles m-np"]'
-                                      '//div[@class="list-content"]/a/@href')
+                                    '//div[@class="list-content"]/a/@href')
     return call_urls
 
 
@@ -24,8 +25,11 @@ def find(parent_element, xpath_str):
 
 
 @handle_many_elements(error_on_empty=True)
-def findall(parent_element, xpath_str):
-    return parent_element.xpath(xpath_str)
+def findall(parent_element, xpath_str, concat_results=False):
+    elements = parent_element.xpath(xpath_str)
+    if concat_results:
+        return html.fromstring(b''.join([html.tostring(el) for el in elements]))
+    return elements
 
 
 def find_containers(html_text):
@@ -40,8 +44,9 @@ def find_containers(html_text):
     article_body = find(parent_element=html_doc,
                         xpath_str='.//section[@class="usmf-new article-body"]/span[@class="article-content"]')
 
-    transcript_header = find(parent_element=article_body,
-                             xpath_str='./h2[text()="Contents:"]/preceding-sibling::p')
+    transcript_header = findall(parent_element=article_body,
+                                xpath_str='./h2[text()="Contents:"]/preceding-sibling::p',
+                                concat_results=True)
 
     pres_elements = findall(parent_element=article_body,
                             xpath_str='./h2[text()[contains(.,"Prepared")]]'
@@ -251,7 +256,8 @@ def get_statement_breakpoints(transcript_elements):
 
 
 def get_statement_metadata(statement_header_element):
-    speaker = statement_header_element.xpath('.//strong/text()')[0]
+
+    speaker = ''.join(statement_header_element.xpath('.//strong/text()'))
 
     speaker_desc = statement_header_element.xpath('.//em/text()')
     speaker_desc = speaker_desc[0] if len(speaker_desc) > 0 else None

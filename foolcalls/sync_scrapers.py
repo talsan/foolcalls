@@ -2,12 +2,11 @@ import os
 from datetime import datetime
 import argparse
 import logging
-from config import Aws, FoolCalls, Local
+from foolcalls.config import Aws, FoolCalls, Local
 import boto3
 import re
-from foolcalls.utils import helpers
 import glob
-from foolcalls import scrapers
+from foolcalls import scrapers, helpers
 import multiprocessing as mp
 
 log = logging.getLogger(__name__)

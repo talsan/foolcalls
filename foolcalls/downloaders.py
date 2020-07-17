@@ -2,10 +2,9 @@ import os
 from datetime import datetime
 import argparse
 import logging
-from config import Aws, FoolCalls
+from foolcalls.config import Aws, FoolCalls
 import boto3
-from foolcalls import scrapers
-from foolcalls.utils import helpers
+from . import scrapers, helpers
 from io import BytesIO
 import gzip
 import shutil
@@ -108,7 +107,7 @@ if __name__ == "__main__":
     # logging (will inherit log calls from utils.pricing and utils.s3_helpers)
     this_file = os.path.basename(__file__).replace('.py', '')
     log_id = f'{this_file}_{datetime.now().strftime("%Y%m%dT%H%M%S")}'
-    logging.basicConfig(filename=f'./logs/{log_id}.log', level=logging.INFO,
+    logging.basicConfig(filename=f'../logs/{log_id}.log', level=logging.INFO,
                         format=f'%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
     log.info(f'configuration parameters: {FoolCalls.__dict__}')
