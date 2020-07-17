@@ -2,9 +2,9 @@
 ![This is what it does](https://github.com/talsan/foolcalls/blob/master/examples/scraper_example.png?raw=true)
 
 ## Usage Patterns
-#### Modules for processing individual events (i.e. a single earnings call transcript):
-- `scrapers.py` exposes self-contained scraping functions that can be imported (or called via cli) to process individual events (transcripts)
-#### Batch Processes for syncing transcripts with your file-store:
+#### Modules for converting transcript from raw html to json
+- `scrapers.py` contains scraping functions that can be imported to scrape individual transcripts
+#### Batch Processes for syncing transcripts with your local or s3 filestores:
 - `sync_downloads.py` and `sync_scrapes.py` are wrappers that invoke/queue a series of events (transcripts), keeping local/cloud directories in sync with fool.com
 - Supports local or S3 file-store (see `outputpath` input parameter)
 - Supports multiprocessing (see parameter in `config.py`)
