@@ -12,7 +12,7 @@ Thousands of conference calls occur worldwide every quarter, and even the most a
 to absorb and process information consistently and systematically. It would take one
 person more than 700 days—24 hours a day—to listen to a year’s worth of earnings calls.
 
-While their approaches to "note-taking" may vary greatly, quants and fundamental analysts share a strikingly similar motivation: *calls provide valuable context beyond the numbers.*
+While text-mining machines and fundamental analysts may have wildly different approaches to "note-taking", the basic motivations are strikingly similar: **calls provide investors with valuable context beyond the reported numbers.**
 
 ## Source Data: [www.fool.com](https://www.fool.com/earnings-call-transcripts/?page=1)
 As far as I can tell, there are two main publicly available sources for conference call transcripts: [Seeking Alpha](https://seekingalpha.com) and [Motley Fool](https://fool.com/earnings-call-transcripts/).
@@ -20,7 +20,9 @@ Seeking Alpha has a great history, but is behind a paywall and the data isn't to
 
 ## Quantitative Use-Cases
 This list is intended to be representive, but not exaustive, of the sorts of opportunities that exist across the data set.
-1. **Sentiment Analysis** - is managmeent optimistic or pessimistic about their future?
-2. **Detection of Managment Manipulation** - i.e. the quantification of candor and other red flags
-3. **Identification and Analysis of Thematic Trends** - what topics and themes are gaining/losing prominence across the corpus?
-4. **Whatever your Quant+NLP heart desires** - ultimately, this is a data-set not stock-picking model. Like any other model input (cash flows, income statements, etc.),  *it's only as valuable as how thoughfully and uniqely it's deployed into the investment process.* God speed and good luck.
+1. **Sentiment Analysis** - is managment optimistic or pessimistic about their future?
+2. **Detection of Managment Manipulation** - i.e. the quantification of candor, communication quality, and identification of red-flags
+3. **Identification and Analysis of Thematic Trends** - what topics and themes are gaining/losing prominence across the corpus? and what's the sentiment around those topics?
+4. **Whatever your Quant+NLP heart desires** - ultimately, this is a data-set not stock-picking model. Like any other model input (cash flows, income statements, etc.),  *it's only as valuable as how thoughfully and uniqely it's deployed into the investment process.* 
+
+*God speed and good luck!*
