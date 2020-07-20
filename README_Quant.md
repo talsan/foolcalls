@@ -12,7 +12,7 @@ Thousands of conference calls occur worldwide every quarter, and even the most a
 to absorb and process information consistently and systematically. It would take one
 person more than 700 days—24 hours a day—to listen to a year’s worth of earnings calls.
 
-While their approaches to "note-taking" may vary greatly, quants and fundamental analysts share similar motivations: *calls provide valuable context beyond the numbers.*
+While their approaches to "note-taking" may vary greatly, quants and fundamental analysts share a strikingly similar motivation: *calls provide valuable context beyond the numbers.*
 
 ## Source Data: [www.fool.com](https://www.fool.com/earnings-call-transcripts/?page=1)
 As far as I can tell, there are two main publicly available sources for conference call transcripts: [Seeking Alpha](https://seekingalpha.com) and [Motley Fool](https://fool.com/earnings-call-transcripts/).
