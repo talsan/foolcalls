@@ -11,10 +11,10 @@ While I have yet to hear a robot ask a question, [I have first hand experience](
 effectively a well-trained machine can tease out subtle, yet economically valuable patterns in the dialogue. 
 
 Thousands of conference calls occur worldwide every quarter, and even the most accomplished analysts have finite capacity
-to absorb and process information consistently and systematically. It would take one
+to consistently absorb and process the information load; it would take one
 person more than 700 days—24 hours a day—to listen to a year’s worth of earnings calls.
 
-While text-mining machines and fundamental analysts may have wildly different approaches to "note-taking", the basic motivations are strikingly similar: **calls provide investors with valuable context beyond the reported numbers.**
+While text-mining machines and fundamental analysts may have wildly different approaches to "note-taking", the basic motivations are strikingly similar: **calls provide investors with valuable _context_ beyond reported numbers.**
 
 ## Source Data: [www.fool.com](https://www.fool.com/earnings-call-transcripts/?page=1)
 As far as I can tell, there are two main publicly available sources for conference call transcripts: [Seeking Alpha](https://seekingalpha.com) and [Motley Fool](https://fool.com/earnings-call-transcripts/).
