@@ -45,9 +45,9 @@ print(json.dumps(transcript, indent=2))
 ```
 
 ## Batch Process Overview
-1. **Crawl Fool.com for Transcript URLs**: `scraper.py` scrape urls from the [earnings call landing page](https://www.fool.com/earnings-call-transcripts/?page=1) - a paginated list of earnings call links (most recent calls appear first)
-2. **Archive Raw HTML Contents**: download, compresses (gzip), and archives contents of each url (stored locally or in s3)
-3. **Scrape, Structure & Store Transcripts**: transforms individual raw html file into a consistently structured JSON, with detailed metadata about speakers and their individual statements (stored locally or in s3)
+1. **Crawl** fool.com for transcript URLs: scrape urls from the [earnings call landing page](https://www.fool.com/earnings-call-transcripts/?page=1) - a paginated list of earnings call links (most recent calls appear first)
+2. **Download** Raw HTML Contents: download, compresses (gzip), and archives contents of each url (stored locally or in s3)
+3. **Scrape**, structure & Store Transcripts: transforms individual raw html file into a consistently structured JSON, with detailed metadata about speakers and their individual statements (stored locally or in s3)
 
 ## Batch Processing Examples
 invoke/queue a series of events (transcripts), keeping local/cloud directories in sync with fool.com
