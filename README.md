@@ -32,21 +32,21 @@ print(transcript_urls)
 ```
 combine the two above to get a handful of transcripts from fool.com
 ```python
-num_of_pages = 3 # will be ~60 transcripts, with ~20 transcript urls per page
+num_of_pages = 3
 output = []
-for page in range(0, num_of_pages):
-    transcript_urls = scrape_transcript_urls_by_page(page)
-    for transcript_url in transcript_urls:
-        response = requests.get(transcript_url)
-        transcript = scrape_transcript(response.text)
+for page in range(0, num_of_pages): # for a given page..
+    transcript_urls = scrape_transcript_urls_by_page(page) # get list of transcripts on that page
+    for transcript_url in transcript_urls: # for each transcript in the list
+        response = requests.get(transcript_url) # get the raw html
+        transcript = scrape_transcript(response.text) # structure its contents into a dictionary
         output.append(transcript)
         time.sleep(5) # sleep 5 seconds between reqeusts
 print(json.dumps(transcript, indent=2))
 ```
 
 ## Batch Process Overview
-1. **Crawl & Download** - fool.com for raw htmls of transcripts
-2. **Scrape & Structure** - transforms individual raw html file into a consistently structured JSON
+1. **Crawl & Download** w/ `sync_downloader.py` - keeping transcripts on fool.com in sync with your local or s3 filestores
+2. **Scrape & Structure** w/ `sync_scrapers.py` - structuring individual raw html file into a consistently structured JSON
 
 ## Batch Processing Examples
 invoke/queue a series of events (transcripts), keeping local/cloud directories in sync with fool.com
