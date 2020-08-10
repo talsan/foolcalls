@@ -2,14 +2,14 @@
 
 Before (or after) diving into the code, if you want to understand the context behind this project, see [`READMEQuant.md`](https://github.com/talsan/ishares/blob/master/README_Quant.md)
 
-## A Picture is worth 1000 ReadMEs
+## A Picture is worth 1000 ReadMes
 ![This is what it does](https://github.com/talsan/foolcalls/blob/master/examples/scraper_example.png?raw=true)
 
 ## Usage Patterns
 #### Modules for converting transcript from raw html to json
-- `scrapers.py` provides functions that scrape and structure individual transcripts
+`scrapers.py` provides functions that scrape and structure individual transcripts
 #### Batch Processes for syncing transcripts with your local or s3 filestores:
-- `sync_downloads.py` and `sync_scrapes.py` are wrappers that invoke/queue a series of events (transcripts), keeping local/cloud directories in sync with fool.com
+`sync_downloads.py` and `sync_scrapes.py` are wrappers that queue a series of transcript-events, keeping local/cloud directories in sync with fool.com
 - Supports local or S3 file-store (see `outputpath` input parameter)
 - Supports multiprocessing (see parameter in `config.py`)
 - Polite, under-the-radar scraping (i.e. various throttles and perameters available in `config.py`)
@@ -29,16 +29,15 @@ response = requests.get(transcript_url)
 transcript = scrape_transcript(response.text)
 print(json.dumps(transcript, indent=2))
 ```
-get all (~20) transcript urls from a single page (as of 2020-07-15 there are roughly 1000 pages)
+
+get a handful of transcripts from fool.com
 ```python
-transcript_urls = scrape_transcript_urls_by_page(page_num=1)
-print(transcript_urls)
-```
-combine the two above to get a handful of transcripts from fool.com
-```python
+import requests
+from foolcalls.scrapers import scrape_transcript_urls_by_page, scrape_transcript
+
 num_of_pages = 3
 output = []
-for page in range(0, num_of_pages): # for a given page..
+for page in range(0, num_of_pages): # for a given page...
     transcript_urls = scrape_transcript_urls_by_page(page) # get list of transcripts on that page
     for transcript_url in transcript_urls: # for each transcript in the list
         response = requests.get(transcript_url) # get the raw html
