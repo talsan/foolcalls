@@ -1,15 +1,3 @@
-todo think through how the utils functions can be generalized for broader usage (not just ishares)
-    e.g. importing the ishares model to query athena for returns or
-    duplicating code (in the iShares module and returns module) would both be suboptimal
-
-todo improve error-handling
-    failed holdings-files should go to logs/failed_files for easier debugging
-
-todo print log.info() out to file *and* screen
-    https://stackoverflow.com/questions/13733552/logger-configuration-to-log-to-file-and-print-to-stdout
-
-todo automate athena partition loading when new etf is uploaded to s3
-    MSCK REPAIR TABLE qcdb.etf_holdings;
-
-todo add some automated testing
-    not urgent. if our overall code-base grows this makes sense
+todo add function docustrings
+todo logging + multiprocessing needs to work via handler
+todo add proper testing

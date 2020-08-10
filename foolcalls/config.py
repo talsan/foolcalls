@@ -37,7 +37,7 @@ class FoolCalls:
 
     # LINK COLLECTION PARAMETERS
     START_PAGE = 1 # useful for debugging specific page
-    TRAVERSE_ALL_PAGES_FOR_NEW_URLS = True
+    TRAVERSE_ALL_PAGES_FOR_NEW_URLS = False
     # TRAVERSE_ALL_PAGES_FOR_NEW_URLS is only relevant if overwrite=False
     #   if True: the process looks for new links inside *all* (1000+) pages
     #   if False: the process looks for unprocessed links until it arrives at a page with no unprocessed links

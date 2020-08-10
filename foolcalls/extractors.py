@@ -48,17 +48,31 @@ def find_containers(html_text):
                                 xpath_str='./h2[text()="Contents:"]/preceding-sibling::p',
                                 concat_results=True)
 
-    pres_elements = findall(parent_element=article_body,
-                            xpath_str='./h2[text()[contains(.,"Prepared")]]'
-                                      '/following-sibling::h2[text()[contains(.,"Questions")]]'
-                                      '/preceding-sibling::p'
-                                      '[preceding-sibling::h2[text()[contains(.,"Prepared")]]]')
+    try:
+        pres_elements = findall(parent_element=article_body,
+                                xpath_str='./h2[text()[contains(.,"Prepared")]]'
+                                          '/following-sibling::h2[text()[contains(.,"Questions")]]'
+                                          '/preceding-sibling::p'
+                                          '[preceding-sibling::h2[text()[contains(.,"Prepared")]]]')
+    except:
+        pres_elements = findall(parent_element=article_body,
+                                xpath_str='./h2[text()[contains(.,"Prepared")]]'
+                                          '/following-sibling::p[strong/text()[contains(.,"Questions")]]'
+                                          '/preceding-sibling::p'
+                                          '[preceding-sibling::h2[text()[contains(.,"Prepared")]]]')
 
-    qa_elements_raw = findall(parent_element=article_body,
-                              xpath_str='./h2[text()[contains(.,"Questions")]]'
-                                        '/following-sibling::h2[text()[contains(.,"Call")]]'
-                                        '/preceding-sibling::p'
-                                        '[preceding-sibling::h2[text()[contains(.,"Questions")]]]')
+    try:
+        qa_elements_raw = findall(parent_element=article_body,
+                                  xpath_str='./h2[text()[contains(.,"Questions")]]'
+                                            '/following-sibling::h2[text()[contains(.,"Call")]]'
+                                            '/preceding-sibling::p'
+                                            '[preceding-sibling::h2[text()[contains(.,"Questions")]]]')
+    except:
+        qa_elements_raw = findall(parent_element=article_body,
+                                  xpath_str='./p[strong/text()[contains(.,"Questions")]]'
+                                            '/following-sibling::p[strong/text()[contains(.,"Call")]]'
+                                            '/preceding-sibling::p'
+                                            '[preceding-sibling::p[strong/text()[contains(.,"Questions")]]]')
     qa_elements = qa_elements_raw[:-1]
     duration_element = qa_elements_raw[-1]
 
@@ -256,7 +270,6 @@ def get_statement_breakpoints(transcript_elements):
 
 
 def get_statement_metadata(statement_header_element):
-
     speaker = ''.join(statement_header_element.xpath('.//strong/text()'))
 
     speaker_desc = statement_header_element.xpath('.//em/text()')
@@ -272,9 +285,9 @@ def get_statement_metadata(statement_header_element):
             affiliation = speaker_desc[0]
             role = speaker_desc[1]
 
-    statement_metadata = {'speaker': speaker,
-                          'role': role,
-                          'affiliation': affiliation}
+    statement_metadata = {'speaker': re.sub('(\-\-$)|(^\-\-)', '', speaker.strip()).strip(),
+                          'role': re.sub('(\-\-$)|(^\-\-)', '', role.strip()).strip(),
+                          'affiliation': re.sub('(\-\-$)|(^\-\-)', '', affiliation.strip()).strip()}
 
     return statement_metadata
 
