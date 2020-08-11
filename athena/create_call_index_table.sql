@@ -16,6 +16,6 @@ CREATE EXTERNAL TABLE IF NOT EXISTS qcdb.fool_call_index (
          call_short_title string,
          call_date string,
          call_time string,
-         duration_minutes int
+         duration_minutes string
 )
 ROW FORMAT SERDE 'org.openx.data.jsonserde.JsonSerDe' LOCATION 's3://fool-calls/state=structured/version=202007.1'
