@@ -1,6 +1,6 @@
 # Scrape & Structure Earnings Call Transcripts from fool.com
 
-Before (or after) diving into the code, if you want to understand the context behind this project, see [`READMEQuant.md`](https://github.com/talsan/ishares/blob/master/README_Quant.md)
+Before (or after) diving into the code, if you want to understand the context behind this project, see [`READMEQuant.md`](https://github.com/talsan/foolcalls/blob/master/README_Quant.md)
 
 ![This is what it does](https://github.com/talsan/foolcalls/blob/master/examples/scraper_example.png?raw=true)
 
