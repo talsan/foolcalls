@@ -1,6 +1,6 @@
 # The Quantsplainer
 
-`README_Quant.md` provides quantitative context behind the code. If you want to learn more about the technical elements and usage patterns, visit `README.md`.
+`README_Quant.md` provides quantitative context behind the code. If you want to learn more about the technical elements and usage patterns, visit [`README.md`](https://github.com/talsan/foolcalls/blob/master/README.md).
 
 ## Background
 Quarterly Earnings Calls provide a forum for company management to summarise their recent performance
