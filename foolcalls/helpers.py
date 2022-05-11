@@ -36,13 +36,14 @@ def list_keys(Bucket, Prefix='', Suffix='', full_path=True, remove_ext=False):
 
 
 def to_cid(call_url):
+    call_url = call_url.rstrip('/')
     url_split = call_url.split('/')
     return f'{url_split[-4]}-{url_split[-3]}-{url_split[-2]}-{url_split[-1].replace(".aspx", "")}'
 
 
 def to_url(cid):
     cid_split = cid.split('-')
-    return f'{"/".join(cid_split[0:3])}/{"-".join(cid_split[3:])}.aspx'
+    return f'{"/".join(cid_split[0:3])}/{"-".join(cid_split[3:])}/'
 
 def sleep_between_requests():
     sleep_seconds = random.randint(FoolCalls.MIN_SLEEP_BETWEEN_REQUESTS,

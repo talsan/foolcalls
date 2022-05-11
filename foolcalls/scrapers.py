@@ -5,7 +5,7 @@ import logging
 from foolcalls.config import Aws, FoolCalls
 import json
 import boto3
-from foolcalls import helpers, extractors
+from foolcalls import helpers, extractors, extractors_v2
 from io import BytesIO
 import gzip
 import shutil
@@ -80,14 +80,44 @@ def scrape_transcript(html_text: bytes) -> dict:
     output.update({'call_transcript': call_statement_data})
     return output
 
+def scrape_transcript_v2(html_text: bytes) -> dict:
+    # init output
+    output = {}
+
+    # top level html elements (aka containers)
+    # returns a dictionary wherein each key is a different container object
+    # no information is being extracted yet; different parts of the page are being isolated here
+    containers = extractors_v2.find_containers(html_text)
+
+    # extract structured data from elements
+    call_metadata = extractors_v2.get_publication_metadata(containers['publication_info'])
+    call_header_metadata = extractors_v2.get_header_metadata(containers['article_header'])
+    call_duration_metadata = extractors_v2.get_duration_metadata(containers['duration'])
+    call_statement_data = extractors_v2.get_statement_data(pres_elements=containers['pres'], qa_elements=containers['qa'])
+
+    # metadata for speakers on call (not scraped, derived from statement metadata)
+    call_participant_metadata = extractors_v2.get_participant_metadata(call_statement_data)
+
+    # format output from extracted data
+    output.update(call_metadata)
+    output.update(call_header_metadata)
+    output.update(call_duration_metadata)
+    output.update({'participants': call_participant_metadata})
+    output.update({'call_transcript': call_statement_data})
+    return output
 
 def process_transcript(cid: str, html_content: bytes, outputpath: str) -> None:
     call_url = f'{FoolCalls.EARNINGS_TRANSCRIPTS_ROOT}/{helpers.to_url(cid)}'
-    log.info(f'pid[{mp.current_process().pid}] scraping cid: {cid}; with url: {call_url}')
-    print(f'pid[{mp.current_process().pid}] scraping cid: {cid}; with url: {call_url}')
 
     # scrape
-    call_transcript_data = scrape_transcript(html_content)
+    try:
+        log.info(f'pid[{mp.current_process().pid}] scraper version 1a: scraping cid: {cid}; with url: {call_url}')
+        print(f'pid[{mp.current_process().pid}] scraper version 1a: scraping cid: {cid}; with url: {call_url}')
+        call_transcript_data = scrape_transcript(html_content)
+    except:
+        log.info(f'pid[{mp.current_process().pid}] scraper version 1b: scraping cid: {cid}; with url: {call_url}')
+        print(f'pid[{mp.current_process().pid}] scraper version 1b: scraping cid: {cid}; with url: {call_url}')
+        call_transcript_data = scrape_transcript_v2(html_content)
 
     # add source_metadata
     output = {'cid': cid, 'call_url': call_url}

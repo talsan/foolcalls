@@ -71,16 +71,15 @@ def get_call_urls(previously_processed_call_urls: list = None) -> list:
         if this_page_urls is not None:
 
             # get new urls on the page that weren't already processed
-            new_urls_on_this_page = list(set(this_page_urls) - set(previously_processed_call_urls))
+            this_page_urls_cln = [this_page_url.replace('.aspx','/') for this_page_url in this_page_urls]
+            new_urls_on_this_page = list(set(this_page_urls_cln) - set(previously_processed_call_urls))
+
             log.info(f'{len(new_urls_on_this_page)} unprocessed urls on page {page_num}')
             new_call_urls.extend(new_urls_on_this_page)
             page_num += 1
 
             if not FoolCalls.TRAVERSE_ALL_PAGES_FOR_NEW_URLS:
-                if len(new_urls_on_this_page) > 0:
-                    new_call_urls.extend(new_urls_on_this_page)
-                    page_num += 1
-                else:
+                if len(new_urls_on_this_page) == 0:
                     break
         else:
             log.info(f'No links found on page {page_num}, indicating no more calls are available')

@@ -38,9 +38,9 @@ class FoolCalls:
     # LINK COLLECTION PARAMETERS
     START_PAGE = 1 # useful for debugging specific page
     TRAVERSE_ALL_PAGES_FOR_NEW_URLS = False
-    # TRAVERSE_ALL_PAGES_FOR_NEW_URLS is only relevant if overwrite=False
-    #   if True: the process looks for new links inside *all* (1000+) pages
-    #   if False: the process looks for unprocessed links until it arrives at a page with no unprocessed links
+    # if True: process looks for new links inside *all* (1000+) pages
+    # if False: process looks for unprocessed links until it arrives at a page with no unprocessed links
+    # note this only relevant if overwrite=False (because if overwrite=True, you're processing everything over again)
 
     # throttle requests to fool.com
     MIN_SLEEP_BETWEEN_REQUESTS = 2

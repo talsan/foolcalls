@@ -10,6 +10,7 @@ import gzip
 import shutil
 import random
 import requests
+from scrapingbee import ScrapingBeeClient
 
 
 log = logging.getLogger(__name__)

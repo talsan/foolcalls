@@ -245,7 +245,7 @@ def get_statements_by_section(transcript_elements, statement_num_start, section_
         statement_type = assign_statement_type(statement_metadata, section_name)  # dict for output
 
         # speaker dialogue (list of different paragraphs)
-        paragraphs = transcript_elements[(statement_breakpoints[i] + 1):statement_breakpoints[i + 1] + 1]  # element
+        paragraphs = transcript_elements[(statement_breakpoints[i] + 1):statement_breakpoints[i + 1]]  # element
         statement_text = {'text': ''.join([''.join(para.xpath('.//text()')).replace('\xa0', ' ')
                                            for para in paragraphs])}
 

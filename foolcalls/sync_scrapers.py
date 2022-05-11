@@ -77,7 +77,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='scrape the contents of a call from a ')
     parser.add_argument('outputpath', help=f'where to send output on local machine; if outputpath==\'s3\', output is '
                                            f'uploaded to the Aws.OUPUT_BUCKET variable defined in config.py')
-    parser.add_argument('--overwrite', help=f'Overwrite holdings that have already been downloaded to S3',
+    parser.add_argument('--overwrite', help=f'Overwrite parsed transcripts that have already been downloaded to S3',
                         action='store_true')
     args = parser.parse_args()
 

@@ -4,8 +4,7 @@ import json
 from foolcalls.scrapers import scrape_transcript_urls_by_page, scrape_transcript
 
 # get one transcript for a known url
-transcript_url = 'https://www.fool.com/earnings/call-transcripts/' \
-                 '2020/07/15/kura-sushi-usa-inc-krus-q3-2020-earnings-call-tran.aspx'
+transcript_url = 'https://www.fool.com/earnings/call-transcripts/2020/07/15/kura-sushi-usa-inc-krus-q3-2020-earnings-call-tran.aspx'
 response = requests.get(transcript_url)
 transcript = scrape_transcript(response.text)
 print(json.dumps(transcript, indent=2))
